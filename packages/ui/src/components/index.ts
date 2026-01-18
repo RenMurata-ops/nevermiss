@@ -41,3 +41,6 @@ export * from "./layout";
 
 // Dashboard Components
 export * from "./dashboard";
+
+// Booking URL Components
+export * from "./booking-url";
