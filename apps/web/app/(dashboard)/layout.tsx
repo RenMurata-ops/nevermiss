@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Layout, LoadingSpinner } from "@nevermiss/ui";
-import { useAuth } from "@nevermiss/core";
+import { useAuth, useNotifications } from "@nevermiss/core";
 
 export default function DashboardLayout({
   children,
@@ -13,6 +13,12 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading, signOut } = useAuth();
+  const {
+    unreadCount,
+    fetchNotifications,
+    subscribeToNotifications,
+    unsubscribe,
+  } = useNotifications();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -20,6 +26,15 @@ export default function DashboardLayout({
       router.push("/login");
     }
   }, [loading, user, router]);
+
+  // Fetch and subscribe to notifications
+  useEffect(() => {
+    if (user?.id) {
+      fetchNotifications(user.id);
+      subscribeToNotifications(user.id);
+      return () => unsubscribe();
+    }
+  }, [user?.id, fetchNotifications, subscribeToNotifications, unsubscribe]);
 
   const handleNavigate = (path: string) => {
     router.push(path);
@@ -55,7 +70,7 @@ export default function DashboardLayout({
       onLogout={handleLogout}
       onNotificationClick={handleNotificationClick}
       userName={user.name || undefined}
-      notificationCount={0}
+      notificationCount={unreadCount}
     >
       {children}
     </Layout>

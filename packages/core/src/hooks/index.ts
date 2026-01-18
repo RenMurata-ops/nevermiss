@@ -23,3 +23,9 @@ export type {
   CreateBookingData,
   CreateBookingResult,
 } from "./useCreateBooking";
+
+export { useNotifications } from "./useNotifications";
+export type {
+  UseNotificationsState,
+  UseNotificationsReturn,
+} from "./useNotifications";
