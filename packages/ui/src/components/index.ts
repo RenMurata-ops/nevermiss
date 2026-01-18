@@ -35,3 +35,6 @@ export type {
 
 // Auth Components
 export * from "./auth";
+
+// Layout Components
+export * from "./layout";
