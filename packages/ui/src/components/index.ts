@@ -38,3 +38,6 @@ export * from "./auth";
 
 // Layout Components
 export * from "./layout";
+
+// Dashboard Components
+export * from "./dashboard";
