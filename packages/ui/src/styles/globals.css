@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Mode - CLAUDE.md カラーパレット */
+    --background: #ffffff;
+    --foreground: #0f172a; /* slate-900 */
+    --muted: #f1f5f9; /* slate-100 */
+    --muted-foreground: #64748b; /* slate-500 */
+    --accent: #0f172a; /* slate-900 */
+    --accent-foreground: #ffffff;
+    --border: #e2e8f0; /* slate-200 */
+    --highlight-today: #3b82f6; /* blue-500 */
+    --danger: #ef4444; /* red-500 */
+  }
+
+  .dark {
+    /* Dark Mode - CLAUDE.md カラーパレット */
+    --background: #020617; /* slate-950 */
+    --foreground: #f8fafc; /* slate-50 */
+    --muted: #1e293b; /* slate-800 */
+    --muted-foreground: #94a3b8; /* slate-400 */
+    --accent: #f8fafc; /* slate-50 */
+    --accent-foreground: #0f172a; /* slate-900 */
+    --border: #334155; /* slate-700 */
+    --highlight-today: #60a5fa; /* blue-400 */
+    --danger: #f87171; /* red-400 */
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+}

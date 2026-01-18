@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@nevermiss/ui": ["../../packages/ui/src"],
+      "@nevermiss/ui/*": ["../../packages/ui/src/*"],
+      "@nevermiss/core": ["../../packages/core/src"],
+      "@nevermiss/core/*": ["../../packages/core/src/*"],
+      "@nevermiss/supabase": ["../../packages/supabase/src"],
+      "@nevermiss/supabase/*": ["../../packages/supabase/src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
