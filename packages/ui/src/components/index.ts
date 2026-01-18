@@ -44,3 +44,6 @@ export * from "./dashboard";
 
 // Booking URL Components
 export * from "./booking-url";
+
+// Public Booking Components
+export * from "./public";
