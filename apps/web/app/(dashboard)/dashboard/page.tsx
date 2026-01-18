@@ -5,14 +5,15 @@ import { startOfMonth, endOfMonth, addDays } from "date-fns";
 import {
   GanttChart,
   BookingDetailModal,
-  Button,
   Card,
+  PDFExportButton,
   type ViewMode,
   type GanttBooking,
   type BookingDetail,
+  type PDFExportBooking,
 } from "@nevermiss/ui";
 import { useAuth, useBookings } from "@nevermiss/core";
-import { Calendar, FileText } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -72,6 +73,17 @@ export default function DashboardPage() {
       startAt: booking.startAt,
       endAt: booking.endAt,
       meetingType: booking.meetingType,
+    }));
+  }, [bookings]);
+
+  // Convert bookings to PDF format
+  const pdfBookings: PDFExportBooking[] = useMemo(() => {
+    return bookings.map((booking) => ({
+      id: booking.id,
+      guestName: booking.guestName,
+      startAt: booking.startAt,
+      endAt: booking.endAt,
+      meetingType: booking.meetingType as PDFExportBooking["meetingType"],
     }));
   }, [bookings]);
 
@@ -152,15 +164,8 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {/* PDF Export button placeholder */}
-          <Button
-            variant="secondary"
-            size="md"
-            leftIcon={<FileText className="w-4 h-4" />}
-            disabled
-          >
-            PDF出力
-          </Button>
+          {/* PDF Export */}
+          <PDFExportButton bookings={pdfBookings} />
         </div>
       </div>
 
