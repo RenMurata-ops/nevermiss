@@ -10,3 +10,6 @@ export type { GanttRowProps } from "./GanttRow";
 
 export { GanttBlock } from "./GanttBlock";
 export type { GanttBlockProps, GanttBlockBooking } from "./GanttBlock";
+
+export { BookingDetailModal } from "./BookingDetailModal";
+export type { BookingDetailModalProps, BookingDetail } from "./BookingDetailModal";
