@@ -1,4 +1,9 @@
-// @nevermiss/ui - 共通UIコンポーネント
-// コンポーネントはここからエクスポートされます
+// ==============================================
+// @nevermiss/ui - Shared UI Components
+// ==============================================
 
-export {};
+// Components
+export * from "./components";
+
+// Styles (import in your app's entry point)
+// import "@nevermiss/ui/styles/globals.css";
