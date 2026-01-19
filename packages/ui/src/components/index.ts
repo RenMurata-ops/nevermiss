@@ -56,3 +56,6 @@ export * from "./notification";
 
 // PDF Components
 export * from "./pdf";
+
+// Settings Components
+export * from "./settings";
