@@ -29,3 +29,9 @@ export type {
   UseNotificationsState,
   UseNotificationsReturn,
 } from "./useNotifications";
+
+export { useGoogleConnect } from "./useGoogleConnect";
+export type {
+  UseGoogleConnectState,
+  UseGoogleConnectReturn,
+} from "./useGoogleConnect";

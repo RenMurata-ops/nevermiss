@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@nevermiss/supabase";
 import {
   SettingsPage,
@@ -9,7 +10,7 @@ import {
   type Theme,
   type SettingsUser,
 } from "@nevermiss/ui";
-import { useAuth } from "@nevermiss/core";
+import { useAuth, useGoogleConnect } from "@nevermiss/core";
 
 // ==============================================
 // Theme utilities
@@ -63,12 +64,34 @@ function setNotificationEnabled(enabled: boolean) {
 
 export default function SettingsPageRoute() {
   const { user, loading: authLoading } = useAuth();
+  const {
+    isConnected: isGoogleConnected,
+    loading: googleLoading,
+    connectGoogle,
+    disconnectGoogle,
+    checkConnection,
+  } = useGoogleConnect();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   const [currentTheme, setCurrentTheme] = useState<Theme>("system");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [isConnectingGoogle, setIsConnectingGoogle] = useState(false);
   const [settingsUser, setSettingsUser] = useState<SettingsUser | null>(null);
+
+  // Check for Google connection success/error from callback
+  useEffect(() => {
+    const googleConnected = searchParams.get("google_connected");
+    const error = searchParams.get("error");
+
+    if (googleConnected === "true" && user?.id) {
+      // Refresh connection status
+      checkConnection(user.id);
+    }
+
+    if (error) {
+      console.error("Google OAuth error:", error);
+    }
+  }, [searchParams, user?.id, checkConnection]);
 
   // Initialize theme and notifications from localStorage
   useEffect(() => {
@@ -89,7 +112,7 @@ export default function SettingsPageRoute() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // Fetch user data including google_refresh_token
+  // Fetch user data and check Google connection
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user?.id) return;
@@ -112,11 +135,14 @@ export default function SettingsPageRoute() {
           name: data.name,
           googleRefreshToken: data.google_refresh_token,
         });
+
+        // Check Google connection status
+        checkConnection(user.id);
       }
     };
 
     fetchUserData();
-  }, [user?.id, supabase]);
+  }, [user?.id, supabase, checkConnection]);
 
   // Handle theme change
   const handleThemeChange = useCallback((theme: Theme) => {
@@ -136,55 +162,22 @@ export default function SettingsPageRoute() {
   }, []);
 
   // Handle Google connect
-  const handleGoogleConnect = useCallback(async () => {
-    setIsConnectingGoogle(true);
-
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          scopes: "https://www.googleapis.com/auth/calendar.events",
-          redirectTo: `${window.location.origin}/settings`,
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
-        },
-      });
-
-      if (error) {
-        console.error("Google OAuth error:", error.message);
-      }
-    } catch (err) {
-      console.error("Google connect error:", err);
-    } finally {
-      setIsConnectingGoogle(false);
-    }
-  }, [supabase]);
+  const handleGoogleConnect = useCallback(() => {
+    connectGoogle();
+  }, [connectGoogle]);
 
   // Handle Google disconnect
   const handleGoogleDisconnect = useCallback(async () => {
     if (!user?.id) return;
 
-    try {
-      const { error } = await supabase
-        .from("users")
-        .update({ google_refresh_token: null })
-        .eq("id", user.id);
-
-      if (error) {
-        console.error("Google disconnect error:", error.message);
-        return;
-      }
-
-      // Update local state
+    const success = await disconnectGoogle(user.id);
+    if (success) {
+      // Update local settings user state
       setSettingsUser((prev) =>
         prev ? { ...prev, googleRefreshToken: null } : null
       );
-    } catch (err) {
-      console.error("Google disconnect error:", err);
     }
-  }, [user?.id, supabase]);
+  }, [user?.id, disconnectGoogle]);
 
   // Loading state
   if (authLoading || !settingsUser) {
@@ -197,16 +190,22 @@ export default function SettingsPageRoute() {
     );
   }
 
+  // Update settingsUser with current connection status
+  const displayUser: SettingsUser = {
+    ...settingsUser,
+    googleRefreshToken: isGoogleConnected ? "connected" : null,
+  };
+
   return (
     <SettingsPage
-      user={settingsUser}
+      user={displayUser}
       currentTheme={currentTheme}
       notificationsEnabled={notificationsEnabled}
       onThemeChange={handleThemeChange}
       onNotificationChange={handleNotificationChange}
       onGoogleConnect={handleGoogleConnect}
       onGoogleDisconnect={handleGoogleDisconnect}
-      isConnectingGoogle={isConnectingGoogle}
+      isConnectingGoogle={googleLoading}
     />
   );
 }
