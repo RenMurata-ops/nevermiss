@@ -53,6 +53,7 @@ coverage/
 *.log
 *.cache
 .turbo/
+*.zip
 
 # Supabase
 supabase/.branches/
