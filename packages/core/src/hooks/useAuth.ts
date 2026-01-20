@@ -130,19 +130,27 @@ export function useAuth(): UseAuthReturn {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      if (session?.user) {
-        const userProfile = await fetchUserProfile(session.user.id);
-        setState({
-          user: userProfile,
-          session,
-          loading: false,
-        });
-      } else {
-        setState({
-          user: null,
-          session: null,
-          loading: false,
-        });
+      try {
+        if (session?.user) {
+          const userProfile = await fetchUserProfile(session.user.id);
+          setState({
+            user: userProfile,
+            session,
+            loading: false,
+          });
+        } else {
+          setState({
+            user: null,
+            session: null,
+            loading: false,
+          });
+        }
+      } catch (error) {
+        // AbortError を無視 (navigator.locks の既知の問題)
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        console.error('Auth state change error:', error);
       }
     });
 
