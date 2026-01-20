@@ -44,6 +44,18 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* AbortError を無視するグローバルハンドラー */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.name === 'AbortError') {
+                  event.preventDefault();
+                }
+              });
+            `,
+          }}
+        />
       </head>
       <body className="min-h-screen antialiased">{children}</body>
     </html>
