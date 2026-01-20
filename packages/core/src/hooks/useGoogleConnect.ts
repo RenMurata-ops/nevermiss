@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { createClient } from "@nevermiss/supabase";
+import { useState, useCallback, useMemo } from "react";
+import { getSupabase } from "@nevermiss/supabase";
 
 // ==============================================
 // Types
@@ -26,7 +26,7 @@ export function useGoogleConnect(): UseGoogleConnectReturn {
     loading: false,
   });
 
-  const supabase = createClient();
+  const supabase = useMemo(() => getSupabase(), []);
 
   // Check if user has Google connected
   const checkConnection = useCallback(

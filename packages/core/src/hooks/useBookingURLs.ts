@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { createClient } from "@nevermiss/supabase";
+import { useState, useCallback, useMemo } from "react";
+import { getSupabase } from "@nevermiss/supabase";
 import type { BookingURL, BookingURLRow, MeetingType } from "@nevermiss/supabase";
 
 // ==============================================
@@ -114,7 +114,7 @@ export function useBookingURLs(): UseBookingURLsReturn {
     error: null,
   });
 
-  const supabase = createClient();
+  const supabase = useMemo(() => getSupabase(), []);
 
   // Generate unique slug from title
   const generateUniqueSlug = useCallback(

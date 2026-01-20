@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@nevermiss/supabase";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { getSupabase } from "@nevermiss/supabase";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 import type { User, UserRow } from "@nevermiss/supabase";
 
@@ -57,7 +57,8 @@ export function useAuth(): UseAuthReturn {
     loading: true,
   });
 
-  const supabase = createClient();
+  // Use singleton to avoid recreating client on each render
+  const supabase = useMemo(() => getSupabase(), []);
 
   // Fetch user profile from users table
   const fetchUserProfile = useCallback(

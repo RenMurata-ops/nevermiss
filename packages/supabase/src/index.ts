@@ -5,6 +5,7 @@
 // Client
 export {
   createClient,
+  createStandardClient,
   createClientWithConfig,
   getSupabase,
   createSupabaseClient,

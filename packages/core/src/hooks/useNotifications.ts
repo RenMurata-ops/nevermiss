@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@nevermiss/supabase";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { getSupabase } from "@nevermiss/supabase";
 import type { Notification, NotificationRow, NotificationType } from "@nevermiss/supabase";
 
 // ==============================================
@@ -48,7 +48,7 @@ export function useNotifications(): UseNotificationsReturn {
     error: null,
   });
 
-  const supabase = createClient();
+  const supabase = useMemo(() => getSupabase(), []);
   let subscription: ReturnType<typeof supabase.channel> | null = null;
 
   // Calculate unread count from notifications
