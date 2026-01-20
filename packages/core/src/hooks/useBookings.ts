@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { createClient } from "@nevermiss/supabase";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { getSupabase } from "@nevermiss/supabase";
 import type { Booking, BookingRow } from "@nevermiss/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -64,7 +64,7 @@ export function useBookings(): UseBookingsReturn {
     error: null,
   });
 
-  const supabase = createClient();
+  const supabase = useMemo(() => getSupabase(), []);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const currentUserIdRef = useRef<string | null>(null);
 

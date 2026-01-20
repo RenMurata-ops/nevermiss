@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { createClient } from "@nevermiss/supabase";
+import { useState, useCallback, useMemo } from "react";
+import { getSupabase } from "@nevermiss/supabase";
 import type { MeetingType } from "@nevermiss/supabase";
 
 // ==============================================
@@ -40,7 +40,7 @@ export function useCreateBooking(): UseCreateBookingReturn {
     error: null,
   });
 
-  const supabase = createClient();
+  const supabase = useMemo(() => getSupabase(), []);
 
   // Call Edge Function to create meeting URL
   const callMeetingFunction = useCallback(

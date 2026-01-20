@@ -1,3 +1,4 @@
+import { createBrowserClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
@@ -24,11 +25,12 @@ const getSupabaseAnonKey = (): string => {
 };
 
 // ==============================================
-// Client Factory
+// Browser Client (for client-side use with SSR)
 // ==============================================
 
 /**
- * Creates a typed Supabase client instance
+ * Creates a typed Supabase browser client instance
+ * Uses @supabase/ssr for proper cookie handling in Next.js
  *
  * @example
  * ```ts
@@ -41,6 +43,21 @@ const getSupabaseAnonKey = (): string => {
  * ```
  */
 export function createClient() {
+  return createBrowserClient<Database>(
+    getSupabaseUrl(),
+    getSupabaseAnonKey()
+  );
+}
+
+// ==============================================
+// Standard Client (for non-SSR environments)
+// ==============================================
+
+/**
+ * Creates a standard Supabase client without SSR cookie handling
+ * Use this for server-side scripts, Edge Functions, or non-Next.js environments
+ */
+export function createStandardClient() {
   return createSupabaseClient<Database>(getSupabaseUrl(), getSupabaseAnonKey());
 }
 
@@ -56,13 +73,13 @@ export function createClientWithConfig(url: string, anonKey: string) {
 }
 
 // ==============================================
-// Default Client Instance (for convenience)
+// Default Client Instance (singleton for browser)
 // ==============================================
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 
 /**
- * Returns a singleton Supabase client instance
+ * Returns a singleton Supabase browser client instance
  * Lazily initialized on first call
  */
 export function getSupabase() {
