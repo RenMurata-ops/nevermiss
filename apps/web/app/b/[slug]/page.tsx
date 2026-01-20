@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { createClient } from "@nevermiss/supabase";
+import { createClient, type BookingURLRow, type BookingRow, type InsertTables } from "@nevermiss/supabase";
 import {
   PublicBookingPage,
   BookingExpired,
@@ -53,33 +53,35 @@ export default function PublicBookingPageRoute() {
           return;
         }
 
+        const url = urlData as BookingURLRow;
+
         // Check if active
-        if (!urlData.is_active) {
+        if (!url.is_active) {
           setState({ status: "inactive" });
           return;
         }
 
         // Check if expired
-        if (urlData.expires_at && new Date(urlData.expires_at) < new Date()) {
+        if (url.expires_at && new Date(url.expires_at) < new Date()) {
           setState({ status: "expired" });
           return;
         }
 
         // Store user_id for booking creation
-        setUserId(urlData.user_id);
+        setUserId(url.user_id);
 
         // Fetch existing confirmed bookings for this booking URL
         const { data: bookingsData, error: bookingsError } = await supabase
           .from("bookings")
           .select("start_at, end_at")
-          .eq("booking_url_id", urlData.id)
+          .eq("booking_url_id", url.id)
           .eq("status", "confirmed");
 
         if (bookingsError) {
           console.error("Error fetching bookings:", bookingsError.message);
         }
 
-        const existingBookings: PublicBooking[] = (bookingsData || []).map(
+        const existingBookings: PublicBooking[] = ((bookingsData || []) as Pick<BookingRow, "start_at" | "end_at">[]).map(
           (b) => ({
             startAt: new Date(b.start_at),
             endAt: new Date(b.end_at),
@@ -87,16 +89,16 @@ export default function PublicBookingPageRoute() {
         );
 
         const bookingURL: PublicBookingURL = {
-          id: urlData.id,
-          title: urlData.title,
-          durationMinutes: urlData.duration_minutes,
-          meetingType: urlData.meeting_type as PublicBookingURL["meetingType"],
-          locationAddress: urlData.location_address,
-          availableDays: urlData.available_days,
-          availableStartTime: urlData.available_start_time,
-          availableEndTime: urlData.available_end_time,
-          minNoticeHours: urlData.min_notice_hours,
-          maxDaysAhead: urlData.max_days_ahead,
+          id: url.id,
+          title: url.title,
+          durationMinutes: url.duration_minutes,
+          meetingType: url.meeting_type as PublicBookingURL["meetingType"],
+          locationAddress: url.location_address,
+          availableDays: url.available_days,
+          availableStartTime: url.available_start_time,
+          availableEndTime: url.available_end_time,
+          minNoticeHours: url.min_notice_hours,
+          maxDaysAhead: url.max_days_ahead,
         };
 
         setState({
@@ -124,29 +126,31 @@ export default function PublicBookingPageRoute() {
     cancelDeadline.setDate(cancelDeadline.getDate() - 3);
 
     // Insert booking
+    const insertData: InsertTables<"bookings"> = {
+      booking_url_id: state.bookingURL.id,
+      user_id: userId,
+      guest_name: data.guestName,
+      start_at: data.startAt.toISOString(),
+      end_at: data.endAt.toISOString(),
+      meeting_type: state.bookingURL.meetingType,
+      status: "confirmed",
+      cancel_deadline: cancelDeadline.toISOString(),
+      location_address: state.bookingURL.locationAddress,
+    };
+
     const { data: bookingData, error } = await supabase
       .from("bookings")
-      .insert({
-        booking_url_id: state.bookingURL.id,
-        user_id: userId,
-        guest_name: data.guestName,
-        start_at: data.startAt.toISOString(),
-        end_at: data.endAt.toISOString(),
-        meeting_type: state.bookingURL.meetingType,
-        status: "confirmed",
-        cancel_deadline: cancelDeadline.toISOString(),
-        location_address: state.bookingURL.locationAddress,
-      })
+      .insert(insertData as never)
       .select("id")
       .single();
 
-    if (error) {
-      console.error("Error creating booking:", error.message);
+    if (error || !bookingData) {
+      console.error("Error creating booking:", error?.message);
       throw new Error("予約の作成に失敗しました");
     }
 
     // Redirect to complete page
-    router.push(`/b/${slug}/complete?booking_id=${bookingData.id}`);
+    router.push(`/b/${slug}/complete?booking_id=${(bookingData as { id: string }).id}`);
 
     // Return empty result (meeting_url will be added later)
     return { meetingUrl: null };

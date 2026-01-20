@@ -11,7 +11,7 @@ import {
   type BookingURLFormData,
 } from "@nevermiss/ui";
 import { useAuth, useBookingURLs } from "@nevermiss/core";
-import type { BookingURL } from "@nevermiss/supabase";
+import type { BookingURL, BookingURLRow } from "@nevermiss/supabase";
 
 function BookingURLFormPage() {
   const router = useRouter();
@@ -48,31 +48,30 @@ function BookingURLFormPage() {
           .eq("id", editId)
           .single();
 
-        if (error) {
-          console.error("Error fetching booking URL:", error.message);
+        if (error || !data) {
+          console.error("Error fetching booking URL:", error?.message);
           return;
         }
 
-        if (data) {
-          setExistingData({
-            id: data.id,
-            userId: data.user_id,
-            slug: data.slug,
-            title: data.title,
-            durationMinutes: data.duration_minutes,
-            meetingType: data.meeting_type as BookingURL["meetingType"],
-            locationAddress: data.location_address,
-            availableDays: data.available_days,
-            availableStartTime: data.available_start_time,
-            availableEndTime: data.available_end_time,
-            minNoticeHours: data.min_notice_hours,
-            maxDaysAhead: data.max_days_ahead,
-            expiresAt: data.expires_at ? new Date(data.expires_at) : null,
-            isActive: data.is_active,
-            createdAt: new Date(data.created_at),
-            updatedAt: new Date(data.updated_at),
-          });
-        }
+        const row = data as BookingURLRow;
+        setExistingData({
+          id: row.id,
+          userId: row.user_id,
+          slug: row.slug,
+          title: row.title,
+          durationMinutes: row.duration_minutes,
+          meetingType: row.meeting_type as BookingURL["meetingType"],
+          locationAddress: row.location_address,
+          availableDays: row.available_days,
+          availableStartTime: row.available_start_time,
+          availableEndTime: row.available_end_time,
+          minNoticeHours: row.min_notice_hours,
+          maxDaysAhead: row.max_days_ahead,
+          expiresAt: row.expires_at ? new Date(row.expires_at) : null,
+          isActive: row.is_active,
+          createdAt: new Date(row.created_at),
+          updatedAt: new Date(row.updated_at),
+        });
       } finally {
         setIsFetching(false);
       }

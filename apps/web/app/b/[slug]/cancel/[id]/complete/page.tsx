@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { createClient } from "@nevermiss/supabase";
+import { createClient, type BookingRow } from "@nevermiss/supabase";
 import {
   CancelComplete,
   Card,
@@ -40,10 +40,11 @@ export default function CancelCompletePage() {
           return;
         }
 
+        const row = data as Pick<BookingRow, "guest_name" | "start_at" | "end_at">;
         const booking: CancelCompleteBooking = {
-          guestName: data.guest_name,
-          startAt: new Date(data.start_at),
-          endAt: new Date(data.end_at),
+          guestName: row.guest_name,
+          startAt: new Date(row.start_at),
+          endAt: new Date(row.end_at),
         };
 
         setState({ status: "ready", booking });

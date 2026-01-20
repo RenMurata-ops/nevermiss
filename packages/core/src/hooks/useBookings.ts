@@ -208,7 +208,7 @@ export function useBookings(): UseBookingsReturn {
           .update({
             status: "cancelled",
             cancelled_at: now,
-          })
+          } as never)
           .eq("id", bookingId);
 
         if (error) {

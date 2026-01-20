@@ -233,9 +233,9 @@ export function PDFDocument({ year, month, bookings }: PDFDocumentProps) {
 
             const rowStyle = [
               styles.tableRow,
-              isSunday && styles.weekendRow,
-              isSaturday && styles.saturdayRow,
-            ].filter(Boolean);
+              ...(isSunday ? [styles.weekendRow] : []),
+              ...(isSaturday ? [styles.saturdayRow] : []),
+            ];
 
             return (
               <View key={day} style={rowStyle} wrap={false}>
@@ -254,7 +254,7 @@ export function PDFDocument({ year, month, bookings }: PDFDocumentProps) {
                 {/* Booking blocks */}
                 {dayBookings.map((booking) => (
                   <View key={booking.id} style={getBookingStyle(booking)}>
-                    <Text style={styles.bookingText} numberOfLines={1}>
+                    <Text style={styles.bookingText}>
                       {booking.guestName}
                     </Text>
                   </View>

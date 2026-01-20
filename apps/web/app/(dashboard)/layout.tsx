@@ -69,7 +69,7 @@ export default function DashboardLayout({
       onNavigate={handleNavigate}
       onLogout={handleLogout}
       onNotificationClick={handleNotificationClick}
-      userName={user.name || undefined}
+      userName={user.user_metadata?.name || user.user_metadata?.full_name || undefined}
       notificationCount={unreadCount}
     >
       {children}

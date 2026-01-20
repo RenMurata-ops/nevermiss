@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { getSupabase } from "@nevermiss/supabase";
-import type { MeetingType } from "@nevermiss/supabase";
+import type { MeetingType, InsertTables, BookingRow } from "@nevermiss/supabase";
 
 // ==============================================
 // Types
@@ -78,32 +78,34 @@ export function useCreateBooking(): UseCreateBookingReturn {
         cancelDeadline.setDate(cancelDeadline.getDate() - 3);
 
         // Insert booking
+        const insertData: InsertTables<"bookings"> = {
+          guest_name: data.guestName,
+          start_at: data.startAt.toISOString(),
+          end_at: data.endAt.toISOString(),
+          booking_url_id: data.bookingUrlId,
+          user_id: data.userId,
+          meeting_type: data.meetingType,
+          location_address: data.locationAddress || null,
+          status: "confirmed",
+          cancel_deadline: cancelDeadline.toISOString(),
+        };
+
         const { data: booking, error: insertError } = await supabase
           .from("bookings")
-          .insert({
-            guest_name: data.guestName,
-            start_at: data.startAt.toISOString(),
-            end_at: data.endAt.toISOString(),
-            booking_url_id: data.bookingUrlId,
-            user_id: data.userId,
-            meeting_type: data.meetingType,
-            location_address: data.locationAddress || null,
-            status: "confirmed",
-            cancel_deadline: cancelDeadline.toISOString(),
-          })
+          .insert(insertData as never)
           .select("id")
           .single();
 
-        if (insertError) {
-          console.error("Booking insert error:", insertError.message);
+        if (insertError || !booking) {
+          console.error("Booking insert error:", insertError?.message);
           setState({
             loading: false,
-            error: "予約の作成に失敗しました: " + insertError.message,
+            error: "予約の作成に失敗しました: " + (insertError?.message || "Unknown error"),
           });
           return null;
         }
 
-        const bookingId = booking.id;
+        const bookingId = (booking as { id: string }).id;
         let meetingUrl: string | null = null;
 
         // Call appropriate Edge Function based on meeting type

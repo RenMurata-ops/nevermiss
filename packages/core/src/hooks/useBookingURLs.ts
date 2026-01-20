@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { getSupabase } from "@nevermiss/supabase";
-import type { BookingURL, BookingURLRow, MeetingType } from "@nevermiss/supabase";
+import type { BookingURL, BookingURLRow, MeetingType, InsertTables, UpdateTables } from "@nevermiss/supabase";
 
 // ==============================================
 // Types
@@ -232,7 +232,7 @@ export function useBookingURLs(): UseBookingURLsReturn {
         // Generate unique slug
         const slug = await generateUniqueSlug(data.title);
 
-        const insertData = {
+        const insertData: InsertTables<"booking_urls"> = {
           user_id: userId,
           slug,
           title: data.title,
@@ -249,7 +249,7 @@ export function useBookingURLs(): UseBookingURLsReturn {
 
         const { data: result, error } = await supabase
           .from("booking_urls")
-          .insert(insertData)
+          .insert(insertData as never)
           .select()
           .single();
 
@@ -319,7 +319,7 @@ export function useBookingURLs(): UseBookingURLsReturn {
 
         const { data: result, error } = await supabase
           .from("booking_urls")
-          .update(updateData)
+          .update(updateData as never)
           .eq("id", id)
           .select()
           .single();
@@ -367,7 +367,7 @@ export function useBookingURLs(): UseBookingURLsReturn {
       try {
         const { error } = await supabase
           .from("booking_urls")
-          .update({ is_active: false })
+          .update({ is_active: false } as never)
           .eq("id", id);
 
         if (error) {

@@ -2,15 +2,21 @@ import { useState, useEffect } from "react";
 import { getSupabase } from "@nevermiss/supabase";
 import type { User, Session } from "@supabase/supabase-js";
 
+export interface AuthResult {
+  success: boolean;
+  error?: string;
+}
+
 export interface UseAuthReturn {
   user: User | null;
   session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: Error | null }>;
-  resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  signInWithEmail: (email: string, password: string) => Promise<AuthResult>;
+  signInWithGoogle: () => Promise<AuthResult>;
+  signUp: (email: string, password: string, name: string) => Promise<AuthResult>;
+  resetPassword: (email: string) => Promise<AuthResult>;
+  resendVerificationEmail: () => Promise<AuthResult>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -45,16 +51,19 @@ export function useAuth(): UseAuthReturn {
     await supabase.auth.signOut();
   };
 
-  const signInWithEmail = async (email: string, password: string) => {
+  const signInWithEmail = async (email: string, password: string): Promise<AuthResult> => {
     const supabase = getSupabase();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    return { error };
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (): Promise<AuthResult> => {
     const supabase = getSupabase();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -62,10 +71,13 @@ export function useAuth(): UseAuthReturn {
         redirectTo: `${window.location.origin}/dashboard`,
       },
     });
-    return { error };
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string): Promise<AuthResult> => {
     const supabase = getSupabase();
     const { error } = await supabase.auth.signUp({
       email,
@@ -75,15 +87,37 @@ export function useAuth(): UseAuthReturn {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    return { error };
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
   };
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = async (email: string): Promise<AuthResult> => {
     const supabase = getSupabase();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    return { error };
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  };
+
+  const resendVerificationEmail = async (): Promise<AuthResult> => {
+    const supabase = getSupabase();
+    const email = user?.email;
+    if (!email) {
+      return { success: false, error: "ユーザーのメールアドレスが見つかりません" };
+    }
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+    });
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
   };
 
   return {
@@ -95,5 +129,6 @@ export function useAuth(): UseAuthReturn {
     signInWithGoogle,
     signUp,
     resetPassword,
+    resendVerificationEmail,
   };
 }

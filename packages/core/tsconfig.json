@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@nevermiss/supabase": ["../supabase/src"],
+      "@nevermiss/supabase/*": ["../supabase/src/*"]
     }
   },
   "include": ["src"],

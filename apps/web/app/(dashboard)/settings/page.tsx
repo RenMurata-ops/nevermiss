@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { createClient } from "@nevermiss/supabase";
+import { createClient, type UserRow } from "@nevermiss/supabase";
 import {
   SettingsPage,
   LoadingSpinner,
@@ -129,11 +129,12 @@ export default function SettingsPageRoute() {
       }
 
       if (data) {
+        const row = data as Pick<UserRow, "id" | "email" | "name" | "google_refresh_token">;
         setSettingsUser({
-          id: data.id,
-          email: data.email,
-          name: data.name,
-          googleRefreshToken: data.google_refresh_token,
+          id: row.id,
+          email: row.email,
+          name: row.name,
+          googleRefreshToken: row.google_refresh_token,
         });
 
         // Check Google connection status

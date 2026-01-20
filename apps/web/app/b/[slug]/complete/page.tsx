@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { createClient } from "@nevermiss/supabase";
+import { createClient, type BookingRow } from "@nevermiss/supabase";
 import {
   BookingComplete,
   Card,
@@ -50,13 +50,14 @@ function BookingCompletePage() {
           return;
         }
 
+        const row = data as BookingRow;
         const booking: BookingCompleteData = {
-          guestName: data.guest_name,
-          startAt: new Date(data.start_at),
-          endAt: new Date(data.end_at),
-          meetingUrl: data.meeting_url,
-          meetingType: data.meeting_type as BookingCompleteData["meetingType"],
-          locationAddress: data.location_address,
+          guestName: row.guest_name,
+          startAt: new Date(row.start_at),
+          endAt: new Date(row.end_at),
+          meetingUrl: row.meeting_url,
+          meetingType: row.meeting_type as BookingCompleteData["meetingType"],
+          locationAddress: row.location_address,
         };
 
         setState({ status: "ready", booking });

@@ -13,7 +13,7 @@
     "build:web": "npm run build -w @nevermiss/web",
     "build:desktop": "npm run build -w @nevermiss/desktop",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/ui && tsc --noEmit -p packages/supabase && tsc --noEmit -p apps/web"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

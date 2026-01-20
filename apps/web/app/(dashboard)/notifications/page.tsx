@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@nevermiss/supabase";
+import { createClient, type BookingRow } from "@nevermiss/supabase";
 import {
   NotificationList,
   Button,
@@ -81,7 +81,7 @@ export default function NotificationsPage() {
         .in("id", bookingIds);
 
       const bookingMap = new Map(
-        (bookings || []).map((b) => [
+        ((bookings || []) as Pick<BookingRow, "id" | "guest_name" | "start_at">[]).map((b) => [
           b.id,
           { guestName: b.guest_name, startAt: new Date(b.start_at) },
         ])
@@ -118,15 +118,16 @@ export default function NotificationsPage() {
       .single();
 
     if (booking) {
+      const row = booking as BookingRow;
       setSelectedBooking({
-        id: booking.id,
-        guestName: booking.guest_name,
-        startAt: new Date(booking.start_at),
-        endAt: new Date(booking.end_at),
-        meetingType: booking.meeting_type as BookingDetail["meetingType"],
-        meetingUrl: booking.meeting_url,
-        locationAddress: booking.location_address,
-        status: booking.status as BookingDetail["status"],
+        id: row.id,
+        guestName: row.guest_name,
+        startAt: new Date(row.start_at),
+        endAt: new Date(row.end_at),
+        meetingType: row.meeting_type as BookingDetail["meetingType"],
+        meetingUrl: row.meeting_url,
+        locationAddress: row.location_address,
+        status: row.status as BookingDetail["status"],
       });
       setIsModalOpen(true);
     }

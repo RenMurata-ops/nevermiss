@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { createClient } from "@nevermiss/supabase";
+import { createClient, type BookingRow } from "@nevermiss/supabase";
 import {
   CancelConfirm,
   Card,
@@ -44,19 +44,21 @@ export default function CancelConfirmPage() {
           return;
         }
 
+        const row = data as Pick<BookingRow, "id" | "guest_name" | "start_at" | "end_at" | "meeting_type" | "status" | "cancel_deadline">;
+
         // Check if already cancelled
-        if (data.status === "cancelled") {
+        if (row.status === "cancelled") {
           setState({ status: "already_cancelled" });
           return;
         }
 
         const booking: CancelConfirmBooking = {
-          id: data.id,
-          guestName: data.guest_name,
-          startAt: new Date(data.start_at),
-          endAt: new Date(data.end_at),
-          meetingType: data.meeting_type as CancelConfirmBooking["meetingType"],
-          cancelDeadline: new Date(data.cancel_deadline),
+          id: row.id,
+          guestName: row.guest_name,
+          startAt: new Date(row.start_at),
+          endAt: new Date(row.end_at),
+          meetingType: row.meeting_type as CancelConfirmBooking["meetingType"],
+          cancelDeadline: new Date(row.cancel_deadline),
         };
 
         setState({ status: "ready", booking });
@@ -79,7 +81,7 @@ export default function CancelConfirmPage() {
         .update({
           status: "cancelled",
           cancelled_at: new Date().toISOString(),
-        })
+        } as never)
         .eq("id", bookingId);
 
       if (error) {

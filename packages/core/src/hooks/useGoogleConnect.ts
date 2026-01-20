@@ -46,7 +46,7 @@ export function useGoogleConnect(): UseGoogleConnectReturn {
           return false;
         }
 
-        const isConnected = !!data?.google_refresh_token;
+        const isConnected = !!(data as { google_refresh_token?: string } | null)?.google_refresh_token;
         setState({ isConnected, loading: false });
         return isConnected;
       } catch (err) {
@@ -72,7 +72,7 @@ export function useGoogleConnect(): UseGoogleConnectReturn {
       try {
         const { error } = await supabase
           .from("users")
-          .update({ google_refresh_token: null })
+          .update({ google_refresh_token: null } as never)
           .eq("id", userId);
 
         if (error) {
