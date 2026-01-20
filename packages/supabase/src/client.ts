@@ -25,20 +25,6 @@ const getSupabaseAnonKey = (): string => {
 };
 
 // ==============================================
-// Auth Options (to avoid AbortError with navigator.locks)
-// ==============================================
-
-const authOptions = {
-  flowType: 'pkce' as const,
-  detectSessionInUrl: true,
-  persistSession: true,
-  autoRefreshToken: true,
-  // navigator.locks を無効化してエラーを回避
-  lock: 'no-op' as const,
-  debug: false,
-};
-
-// ==============================================
 // Browser Client (for client-side use with SSR)
 // ==============================================
 
@@ -59,10 +45,7 @@ const authOptions = {
 export function createClient() {
   return createBrowserClient<Database>(
     getSupabaseUrl(),
-    getSupabaseAnonKey(),
-    {
-      auth: authOptions,
-    }
+    getSupabaseAnonKey()
   );
 }
 
